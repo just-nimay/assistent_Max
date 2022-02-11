@@ -1,7 +1,7 @@
 import pyttsx3
 import speech_recognition as sr
 import os
-from playsound import playsound
+
 
 engine = pyttsx3.init()
 
@@ -28,12 +28,11 @@ run = True
 while run:
 	
 	def home():
-		os.system('open und.WAV')
 		os.system('open /Applications/Spotify.app')
 		os.system('open /Applications/Sublime_Text.app')
 		os.system('open /Applications/Telegram.app')
 		os.system('open /Applications/Utilities/Terminal.app')
-		os.system('open /Applications/GitHub-darwin-x64/GitHub.app')
+		
 
 	def search(request, word):
 		print('поиск индекса у слова...')
@@ -41,7 +40,7 @@ while run:
 		j = int(just.index(word)) + 1
 		return(j)
 
-	def make_dir(name_of_fdr):
+	def make_dir(name_of_fdr, q):
 		print('в запросе не найдена дериктория!')
 		inp_dir = input('где сохранить файл?: ')
 		if 'рабоч' in inp_dir and 'стол' in inp_dir:
@@ -76,15 +75,32 @@ while run:
 					print('эта опция будет добавлена позже...')
 					break
 				elif 'n' in choice:
+					directory = ''
 					break
 				else:
 					print('вы введи неверное значение') 
 					continue
-		return directory
+		q = True
+		return directory, q
 
+	def mk_ext(extension):
+		print('задействована функция')
+		while True:
+			ext = input('какое расширение нужно?: ')
+			if ext in extension:
+				print('введенное вами расширение прсутствует на сервере!')
+				return ext
+				ext_check = True
+				break
+			else:
+				print('введенное вами расширение отсутствует из возможных \n разрешенные расширения: ', extension)
+		ext_check = True
+		
 	def command(request):
 		print(request)
 		predl = request.split()
+		ext_check = False
+		q = False
 		j = False
 		n = False
 		if 'создай' in request or 'создать' in request:
@@ -113,11 +129,25 @@ while run:
 				elif '.' in request and j == True and n == True:
 					print('файл сохранится как ', name)
 
-				if i not in opts['dirs'] and n == True:
-						dir_of_file =  make_dir(name)
-						print('файл будет созданен по пути: ',dir_of_file)
-				elif i in opts['dirs'] and n == True:
-					pass
+				for z in opts['extension']:
+					print('параметр z: ', z)
+					if z in request:
+						print(z, ' есть в opts["extension"]')
+					elif z not in request and ext_check == False:
+						print(z, 'в запросе отсутствует расширение файла!')
+						a = mk_ext(opts['extension'])
+						ext_check = a[1]
+				for x in opts['dirs']:
+					if x not in request and n == True and q == False:
+							dir_of_file =  make_dir(name, q)
+							q = dir_of_file[1]
+							print('файл будет созданен по пути: ',dir_of_file[0])
+							print('параметр q: ', q)
+					elif x in request and n == True:
+						print('директория присутствует в запросе')
+
+				
+
 				#создание папки
 				if i in opts['folder'] and j == True:
 					ind = int(search(request, i))
