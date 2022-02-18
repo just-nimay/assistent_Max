@@ -89,13 +89,29 @@ while run:
 			ext = input('какое расширение нужно?: ')
 			if ext in extension:
 				print('введенное вами расширение прсутствует на сервере!')
-				return ext
 				ext_check = True
+				return ext, ext_check
 				break
 			else:
 				print('введенное вами расширение отсутствует из возможных \n разрешенные расширения: ', extension)
 		ext_check = True
-		
+	
+	def mk_name(n):
+		name = input('вы не указали имя файлу \n введите имя: ')
+		n = True
+		return name, n
+
+	def mk_file(name, ext, dir_of_file):
+		print('создание файла...')
+		dir_now = os.getcwd()
+		print('текущая директория: ', dir_now)
+		os.system('cd {dir}'.format(dir=dir_of_file))
+		print('перевелся в нужную директорию...')
+		os.system('touch  {direc}{name}.{extension}'.format(name=name, extension=ext, direc=dir_of_file))
+		print('создал файл...')
+		os.system('cd {}'.format(dir_now))
+		print('в изначальной директирии')
+
 	def command(request):
 		print(request)
 		predl = request.split()
@@ -110,12 +126,16 @@ while run:
 				print('состояние на создание: ', j)
 				#создание файла
 				if i in opts['file'] and j == True:
-					print('выполсянется создание файла')
-					ind = int(search(request, i))
-					name = predl[ind]
-					print('название файла: ', name)
-					n = True
-
+					try:
+						print('выполсянется создание файла')
+						ind = int(search(request, i))
+						name = predl[ind]
+						print('название файла: ', name)
+						n = True
+					except IndexError:
+						output = mk_name(n)
+						name = output[0]
+						n = output[1]
 				if i in opts['extension'] and j == True :
 					print(i, 'есть в opts[]')
 					for q in opts['extension']:
@@ -123,28 +143,36 @@ while run:
 							ext = q
 							print('расширение: ', ext)
 							print('название файла: ', name)
-							name_with_ext = name + ext
 						else:
 							pass
 				elif '.' in request and j == True and n == True:
 					print('файл сохранится как ', name)
 
-				for z in opts['extension']:
-					print('параметр z: ', z)
-					if z in request:
-						print(z, ' есть в opts["extension"]')
-					elif z not in request and ext_check == False:
-						print(z, 'в запросе отсутствует расширение файла!')
-						a = mk_ext(opts['extension'])
-						ext_check = a[1]
-				for x in opts['dirs']:
-					if x not in request and n == True and q == False:
-							dir_of_file =  make_dir(name, q)
-							q = dir_of_file[1]
-							print('файл будет созданен по пути: ',dir_of_file[0])
-							print('параметр q: ', q)
-					elif x in request and n == True:
-						print('директория присутствует в запросе')
+			for z in opts['extension']:
+				print('параметр z: ', z)
+				if z in request:
+					print(z, ' есть в opts["extension"]')
+
+				elif z not in request and ext_check == False:
+					print(z, 'в запросе отсутствует расширение файла!')
+					a = mk_ext(opts['extension'])
+					ext = a[0]
+					ext_check = a[1]
+
+			for x in opts['dirs']:
+				print('параметр  n: ', n)
+				print('параметр x: ', x)
+				print('работает над созданием директории')
+				if x not in request and n == True and q == False:
+					print('не найдены следы директории')
+					dir_of_file =  make_dir(name, q)
+					dir_file = dir_of_file[0]
+					q = dir_of_file[1]
+					print('файл будет созданен по пути: ',dir_of_file[0])
+					print('параметр q: ', q)
+					mk_file(name, ext, dir_file)
+				elif x in request and n == True:
+					print('директория присутствует в запросе')
 
 				
 
@@ -154,45 +182,45 @@ while run:
 					name_of_fdr = predl[ind]
 					print('название папки: ', name_of_fdr)	
 					
-				if 'рабоч' in i and 'стол' in request:
-					print('определено создание на рабочем столе')
-					dir_desktop = True
-					dir_folder = False
-					directory = '/Users/nimaymac/Desktop/'
-					print("if 'рабоч' in request and 'стол' in request is worked!")
-					os.system('mkdir '+ directory + name_of_fdr)
-					print('успешно!')
+					if 'рабоч' in i and 'стол' in request:
+						print('определено создание на рабочем столе')
+						dir_desktop = True
+						dir_folder = False
+						directory = '/Users/nimaymac/Desktop/'
+						print("if 'рабоч' in request and 'стол' in request is worked!")
+						os.system('mkdir '+ directory + name_of_fdr)
+						print('успешно!')
 
-				elif i == 'папке':
-					ind = int(search(request, i))
-					name_dirFolder = predl[ind]
-					dir_folder = True
-					dir_desktop = True
-					print("определено создание в папке")
+					elif i == 'папке':
+						ind = int(search(request, i))
+						name_dirFolder = predl[ind]
+						dir_folder = True
+						dir_desktop = True
+						print("определено создание в папке")
 								
-					if name_dirFolder == 'загрузки':
-						print('определено создание в папке загрузки')
-						directory = '/Users/nimaymac/Downloads/'
-						os.system('mkdir '+ directory + name_of_fdr)
-						print('успешно!')
+						if name_dirFolder == 'загрузки':
+							print('определено создание в папке загрузки')
+							directory = '/Users/nimaymac/Downloads/'
+							os.system('mkdir '+ directory + name_of_fdr)
+							print('успешно!')
 
-					elif name_dirFolder == 'фото':
-						print('определено создание в папке фото')
-						directory = '/Users/nimaymac/Pictures/'
-						os.system('mkdir '+ directory + name_of_fdr)
-						print('успешно!')
+						elif name_dirFolder == 'фото':
+							print('определено создание в папке фото')
+							directory = '/Users/nimaymac/Pictures/'
+							os.system('mkdir '+ directory + name_of_fdr)
+							print('успешно!')
 
-					elif name_dirFolder == 'видео':
-						print('определено создание в папке видео')
-						directory = '/Users/nimaymac/Movies/'
-						os.system('mkdir '+ directory + name_of_fdr)
-						print('успешно!')
+						elif name_dirFolder == 'видео':
+							print('определено создание в папке видео')
+							directory = '/Users/nimaymac/Movies/'
+							os.system('mkdir '+ directory + name_of_fdr)
+							print('успешно!')
 
-					elif name_dirFolder == 'документы':
-						print('определено создание в папке документы')
-						directory = '/Users/nimaymac/Documents/'
-						os.system('mkdir '+ directory + name_of_fdr)
-						print('успешно!')
+						elif name_dirFolder == 'документы':
+							print('определено создание в папке документы')
+							directory = '/Users/nimaymac/Documents/'
+							os.system('mkdir '+ directory + name_of_fdr)
+							print('успешно!')
 		elif request == 'выход':
 			run = False
 			return run
